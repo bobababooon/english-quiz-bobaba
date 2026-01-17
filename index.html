@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>英単語クイズ</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <h1>英単語クイズ</h1>
+
+  <input type="file" id="fileInput" accept=".csv">
+
+  <div id="quizArea" style="display:none;">
+    <p id="question"></p>
+
+    <input type="text" id="answer" placeholder="答えを入力">
+    <br><br>
+
+    <button id="submitBtn">答える</button>
+    <button id="nextBtn">次へ</button>
+
+    <p id="feedback"></p>
+    <p id="score"></p>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

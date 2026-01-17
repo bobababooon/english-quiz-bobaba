@@ -1,0 +1,19 @@
+body {
+  font-family: sans-serif;
+  text-align: center;
+  background: #f0f7ff;
+}
+
+input, button {
+  font-size: 16px;
+  padding: 8px;
+}
+
+button {
+  margin: 5px;
+}
+
+#question {
+  font-size: 20px;
+  font-weight: bold;
+}
