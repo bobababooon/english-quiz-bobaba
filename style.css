@@ -17,3 +17,20 @@ button {
   font-size: 20px;
   font-weight: bold;
 }
+#startScreen {
+  text-align: center;
+  margin-top: 80px;
+}
+
+#startScreen h1 {
+  font-size: 28px;
+  margin-bottom: 30px;
+}
+
+#startScreen button {
+  font-size: 18px;
+  padding: 12px 24px;
+  margin: 10px;
+  width: 200px;
+}
+
