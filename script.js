@@ -41,6 +41,7 @@ function startNew() {
   clearProgress();
   document.getElementById("startScreen").style.display = "none";
   document.getElementById("quizArea").style.display = "block";
+  alert("CSVファイルを選択してください");
 }
 
 function startContinue() {
@@ -136,7 +137,7 @@ document.getElementById("submitBtn").onclick = function () {
 document.getElementById("nextBtn").onclick = nextQuestion;
 
 /* =====================
-   Enterキー（スマホOK）
+   Enterキー（スマホ対応）
 ===================== */
 
 document.getElementById("answer").addEventListener("keydown", function (e) {
@@ -157,7 +158,6 @@ window.onload = function () {
   const hasSave = loadProgress();
 
   document.getElementById("continueBtn").disabled = !hasSave;
-
   document.getElementById("newBtn").onclick = startNew;
   document.getElementById("continueBtn").onclick = startContinue;
 };
