@@ -26,14 +26,27 @@ function loadProgress() {
   remaining = obj.remaining;
   current = obj.current;
   correct = obj.correct;
-
-  document.getElementById("quizArea").style.display = "block";
-  showQuestion();
   return true;
 }
 
 function clearProgress() {
   localStorage.removeItem("quizProgress");
+}
+
+/* =====================
+   表紙操作
+===================== */
+
+function startNew() {
+  clearProgress();
+  document.getElementById("startScreen").style.display = "none";
+  document.getElementById("quizArea").style.display = "block";
+}
+
+function startContinue() {
+  document.getElementById("startScreen").style.display = "none";
+  document.getElementById("quizArea").style.display = "block";
+  showQuestion();
 }
 
 /* =====================
@@ -57,8 +70,6 @@ document.getElementById("fileInput").addEventListener("change", function (e) {
     current = null;
     answered = false;
 
-    clearProgress();
-    document.getElementById("quizArea").style.display = "block";
     nextQuestion();
   };
 
@@ -66,7 +77,7 @@ document.getElementById("fileInput").addEventListener("change", function (e) {
 });
 
 /* =====================
-   問題処理
+   クイズ処理
 ===================== */
 
 function nextQuestion() {
@@ -80,12 +91,13 @@ function nextQuestion() {
 
   current = remaining[Math.floor(Math.random() * remaining.length)];
   answered = false;
-
   showQuestion();
   saveProgress();
 }
 
 function showQuestion() {
+  if (!current) return;
+
   document.getElementById("question").textContent =
     "意味: " + current[1];
   document.getElementById("answer").value = "";
@@ -121,12 +133,10 @@ document.getElementById("submitBtn").onclick = function () {
    次へ
 ===================== */
 
-document.getElementById("nextBtn").onclick = function () {
-  nextQuestion();
-};
+document.getElementById("nextBtn").onclick = nextQuestion;
 
 /* =====================
-   Enterキー対応（スマホOK）
+   Enterキー（スマホOK）
 ===================== */
 
 document.getElementById("answer").addEventListener("keydown", function (e) {
@@ -140,16 +150,14 @@ document.getElementById("answer").addEventListener("keydown", function (e) {
 });
 
 /* =====================
-   ページ再訪時
+   初期表示
 ===================== */
 
 window.onload = function () {
-  if (loadProgress()) {
-    if (confirm("前回の続きから再開しますか？")) {
-      return;
-    } else {
-      clearProgress();
-      location.reload();
-    }
-  }
+  const hasSave = loadProgress();
+
+  document.getElementById("continueBtn").disabled = !hasSave;
+
+  document.getElementById("newBtn").onclick = startNew;
+  document.getElementById("continueBtn").onclick = startContinue;
 };
