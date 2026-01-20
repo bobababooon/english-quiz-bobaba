@@ -11,13 +11,11 @@
   <!-- 表紙 -->
   <div id="startScreen">
     <h1>英単語クイズ</h1>
-    <p>CSVファイルで単語を読み込んで学習できます</p>
-
     <button id="newBtn">はじめから</button>
     <button id="continueBtn">続きから</button>
   </div>
 
-  <!-- クイズ本体 -->
+  <!-- クイズ -->
   <div id="quizArea" style="display:none;">
     <input type="file" id="fileInput" accept=".csv">
 
@@ -32,6 +30,11 @@
 
     <p id="feedback"></p>
     <p id="score"></p>
+
+    <!-- 終了後 -->
+    <button id="saveWrongBtn" style="display:none;">
+      間違えた単語をCSV保存
+    </button>
   </div>
 
   <script src="script.js"></script>
