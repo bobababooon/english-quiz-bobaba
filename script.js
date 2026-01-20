@@ -3,9 +3,6 @@ let remaining = [];
 let current = null;
 let correct = 0;
 
-// 間違えた単語（重複なし）
-let wrongMap = new Map();
-
 /* ---------- CSV読み込み ---------- */
 document.getElementById("fileInput").addEventListener("change", e => {
   const file = e.target.files[0];
@@ -22,7 +19,7 @@ document.getElementById("fileInput").addEventListener("change", e => {
   reader.readAsText(file, "UTF-8");
 });
 
-/* ---------- 始めから（CSV選択は出さない） ---------- */
+/* ---------- 始めから ---------- */
 document.getElementById("startBtn").onclick = () => {
   if (words.length === 0) {
     // CSV未選択なら何もしない
@@ -31,11 +28,9 @@ document.getElementById("startBtn").onclick = () => {
 
   remaining = [...words];
   correct = 0;
-  wrongMap.clear();
 
   document.getElementById("startScreen").style.display = "none";
   document.getElementById("quizArea").style.display = "block";
-  document.getElementById("resultArea").style.display = "none";
 
   nextQuestion();
 };
@@ -43,7 +38,8 @@ document.getElementById("startBtn").onclick = () => {
 /* ---------- 次の問題 ---------- */
 function nextQuestion() {
   if (remaining.length === 0) {
-    finishQuiz();
+    document.getElementById("question").textContent = "終了！";
+    document.getElementById("feedback").textContent = "お疲れさまでした！";
     return;
   }
 
@@ -67,9 +63,6 @@ document.getElementById("submitBtn").onclick = () => {
     remaining = remaining.filter(w => w !== current);
     document.getElementById("feedback").textContent = "正解！ 🎉";
   } else {
-    if (!wrongMap.has(current[0])) {
-      wrongMap.set(current[0], current[1]);
-    }
     document.getElementById("feedback").textContent =
       "不正解 ❌（正解: " + answer + "）";
   }
@@ -88,29 +81,3 @@ document.getElementById("answer").addEventListener("keydown", e => {
     }
   }
 });
-
-/* ---------- 終了 ---------- */
-function finishQuiz() {
-  document.getElementById("quizArea").style.display = "none";
-  document.getElementById("resultArea").style.display = "block";
-}
-
-/* ---------- CSV保存（英語,日本語のみ・ヘッダーなし） ---------- */
-document.getElementById("saveWrongBtn").onclick = () => {
-  if (wrongMap.size === 0) return;
-
-  let csv = "";
-  wrongMap.forEach((jp, en) => {
-    csv += `${en},${jp}\n`;
-  });
-
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "wrong_words.csv";
-  a.click();
-
-  URL.revokeObjectURL(url);
-};
