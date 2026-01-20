@@ -1,3 +1,5 @@
+/* ---------- 共通 ---------- */
+
 body {
   margin: 0;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
@@ -11,6 +13,11 @@ button {
   border-radius: 10px;
   background: #4da3ff;
   color: white;
+  cursor: pointer;
+}
+
+button:active {
+  transform: scale(0.97);
 }
 
 input {
@@ -20,7 +27,8 @@ input {
   box-sizing: border-box;
 }
 
-/* 表紙 */
+/* ---------- 表紙 ---------- */
+
 #cover {
   height: 100vh;
   display: flex;
@@ -28,11 +36,16 @@ input {
   justify-content: flex-start;   /* 上寄せ */
   align-items: center;
   gap: 20px;
-  padding-top: 120px;            /* 上からの余白 */
+  padding-top: 120px;
 }
 
+#cover h1 {
+  font-size: 32px;
+  margin-bottom: 20px;
+}
 
-/* クイズ */
+/* ---------- クイズ ---------- */
+
 #quizArea {
   display: none;
   max-width: 500px;
@@ -61,3 +74,12 @@ input {
   font-size: 16px;
 }
 
+/* ---------- 終了エリア ---------- */
+
+#endArea {
+  display: none;
+  margin-top: 25px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
