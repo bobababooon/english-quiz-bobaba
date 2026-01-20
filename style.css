@@ -25,10 +25,12 @@ input {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;   /* 上寄せ */
   align-items: center;
   gap: 20px;
+  padding-top: 120px;            /* 上からの余白 */
 }
+
 
 /* クイズ */
 #quizArea {
@@ -58,3 +60,4 @@ input {
   margin-top: 10px;
   font-size: 16px;
 }
+
