@@ -9,18 +9,12 @@ h1 {
   text-align: center;
 }
 
-button {
+input, button {
   font-size: 18px;
   padding: 12px;
   width: 100%;
-  margin-top: 10px;
-}
-
-input {
-  font-size: 18px;
-  padding: 10px;
-  width: 100%;
   box-sizing: border-box;
+  margin-top: 10px;
 }
 
 #quizArea {
