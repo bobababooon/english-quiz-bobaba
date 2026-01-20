@@ -23,8 +23,7 @@ input {
   box-sizing: border-box;
 }
 
-#quizArea,
-#resultArea {
+#quizArea {
   display: none;
   margin-top: 20px;
 }
