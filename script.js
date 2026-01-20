@@ -2,93 +2,45 @@ let words = [];
 let remaining = [];
 let current = null;
 let correct = 0;
-let answered = false;
 
-// 間違えた単語（英語→日本語、重複なし）
+// 間違えた単語（重複なし）
 let wrongMap = new Map();
 
-/* =====================
-   保存・復元
-===================== */
-
-function saveProgress() {
-  localStorage.setItem("quizProgress", JSON.stringify({
-    words,
-    remaining,
-    current,
-    correct,
-    wrong: Array.from(wrongMap.entries())
-  }));
-}
-
-function loadProgress() {
-  const data = localStorage.getItem("quizProgress");
-  if (!data) return false;
-
-  const obj = JSON.parse(data);
-  words = obj.words;
-  remaining = obj.remaining;
-  current = obj.current;
-  correct = obj.correct;
-  wrongMap = new Map(obj.wrong || []);
-  return true;
-}
-
-function clearProgress() {
-  localStorage.removeItem("quizProgress");
-}
-
-/* =====================
-   表紙
-===================== */
-
-function startNew() {
-  clearProgress();
-  wrongMap.clear();
-  document.getElementById("startScreen").style.display = "none";
-  document.getElementById("quizArea").style.display = "block";
-  alert("CSVファイルを選択してください");
-}
-
-function startContinue() {
-  document.getElementById("startScreen").style.display = "none";
-  document.getElementById("quizArea").style.display = "block";
-  showQuestion();
-}
-
-/* =====================
-   CSV読み込み
-===================== */
-
-document.getElementById("fileInput").addEventListener("change", function (e) {
+/* ---------- CSV読み込み ---------- */
+document.getElementById("fileInput").addEventListener("change", e => {
   const file = e.target.files[0];
   if (!file) return;
 
   const reader = new FileReader();
-  reader.onload = function () {
-    const lines = reader.result.split("\n");
+  reader.onload = () => {
+    const lines = reader.result.split(/\r?\n/);
     words = lines
-      .map(l => l.trim())
-      .filter(l => l)
-      .map(l => l.split(","));
-
-    remaining = [...words];
-    correct = 0;
-    current = null;
-    answered = false;
-    wrongMap.clear();
-
-    document.getElementById("saveWrongBtn").style.display = "none";
-    nextQuestion();
+      .map(line => line.split(","))
+      .filter(row => row.length >= 2 && row[0] && row[1])
+      .map(row => [row[0].trim(), row[1].trim()]);
   };
-
   reader.readAsText(file, "UTF-8");
 });
 
-/* =====================
-   クイズ処理
-===================== */
+/* ---------- 始めから（CSV選択は出さない） ---------- */
+document.getElementById("startBtn").onclick = () => {
+  if (words.length === 0) {
+    // CSV未選択なら何もしない
+    return;
+  }
 
+  remaining = [...words];
+  correct = 0;
+  wrongMap.clear();
+
+  document.getElementById("startScreen").style.display = "none";
+  document.getElementById("quizArea").style.display = "block";
+  document.getElementById("resultArea").style.display = "none";
+
+  nextQuestion();
+};
+
+/* ---------- 次の問題 ---------- */
 function nextQuestion() {
   if (remaining.length === 0) {
     finishQuiz();
@@ -96,79 +48,61 @@ function nextQuestion() {
   }
 
   current = remaining[Math.floor(Math.random() * remaining.length)];
-  answered = false;
-  showQuestion();
-  saveProgress();
-}
-
-function showQuestion() {
-  if (!current) return;
-
-  document.getElementById("question").textContent =
-    "意味: " + current[1];
+  document.getElementById("question").textContent = "意味: " + current[1];
   document.getElementById("answer").value = "";
   document.getElementById("feedback").textContent = "";
-  document.getElementById("score").textContent =
-    `正解: ${correct}`;
+  document.getElementById("score").textContent = "正解: " + correct;
+  document.getElementById("answer").focus();
 }
 
-/* =====================
-   答える
-===================== */
+/* ---------- 答える ---------- */
+document.getElementById("submitBtn").onclick = () => {
+  if (!current) return;
 
-document.getElementById("submitBtn").onclick = function () {
-  if (answered || !current) return;
+  const user = document.getElementById("answer").value.trim();
+  const answer = current[0];
 
-  const user = document.getElementById("answer").value.trim().toLowerCase();
-  const answer = current[0].toLowerCase();
-
-  if (user === answer) {
+  if (user.toLowerCase() === answer.toLowerCase()) {
     correct++;
     remaining = remaining.filter(w => w !== current);
-    document.getElementById("feedback").textContent = "正解！🎉";
+    document.getElementById("feedback").textContent = "正解！ 🎉";
   } else {
-    // 英語,日本語 で1回だけ保存
-    wrongMap.set(current[0], current[1]);
+    if (!wrongMap.has(current[0])) {
+      wrongMap.set(current[0], current[1]);
+    }
     document.getElementById("feedback").textContent =
-      `不正解 ❌（正解: ${current[0]}）`;
+      "不正解 ❌（正解: " + answer + "）";
   }
-
-  answered = true;
-  saveProgress();
 };
 
-/* =====================
-   次へ
-===================== */
-
+/* ---------- 次へ ---------- */
 document.getElementById("nextBtn").onclick = nextQuestion;
 
-/* =====================
-   終了
-===================== */
+/* ---------- Enterキー対応（スマホOK） ---------- */
+document.getElementById("answer").addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    if (document.getElementById("feedback").textContent === "") {
+      document.getElementById("submitBtn").click();
+    } else {
+      nextQuestion();
+    }
+  }
+});
 
+/* ---------- 終了 ---------- */
 function finishQuiz() {
-  document.getElementById("question").textContent = "終了！🎉";
-  document.getElementById("feedback").textContent =
-    `正解数: ${correct}`;
-  document.getElementById("saveWrongBtn").style.display = "inline-block";
-  clearProgress();
+  document.getElementById("quizArea").style.display = "none";
+  document.getElementById("resultArea").style.display = "block";
 }
 
-/* =====================
-   CSV保存（英語,日本語のみ）
-===================== */
+/* ---------- CSV保存（英語,日本語のみ・ヘッダーなし） ---------- */
+document.getElementById("saveWrongBtn").onclick = () => {
+  if (wrongMap.size === 0) return;
 
-document.getElementById("saveWrongBtn").onclick = function () {
-  if (wrongMap.size === 0) {
-    alert("間違えた単語はありません！");
-    return;
-  }
-
-  let csv = "英語,日本語\n";
-  for (let [en, jp] of wrongMap) {
+  let csv = "";
+  wrongMap.forEach((jp, en) => {
     csv += `${en},${jp}\n`;
-  }
+  });
 
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
@@ -179,30 +113,4 @@ document.getElementById("saveWrongBtn").onclick = function () {
   a.click();
 
   URL.revokeObjectURL(url);
-};
-
-/* =====================
-   Enterキー
-===================== */
-
-document.getElementById("answer").addEventListener("keydown", function (e) {
-  if (e.key === "Enter") {
-    if (!answered) {
-      document.getElementById("submitBtn").click();
-    } else {
-      document.getElementById("nextBtn").click();
-    }
-  }
-});
-
-/* =====================
-   初期表示
-===================== */
-
-window.onload = function () {
-  const hasSave = loadProgress();
-
-  document.getElementById("continueBtn").disabled = !hasSave;
-  document.getElementById("newBtn").onclick = startNew;
-  document.getElementById("continueBtn").onclick = startContinue;
 };
