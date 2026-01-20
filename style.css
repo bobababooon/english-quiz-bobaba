@@ -1,33 +1,28 @@
 body {
+  margin: 0;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   background: #f0f7ff;
-  margin: 0;
-  padding: 20px;
 }
 
-h1 {
-  text-align: center;
+#cover {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
 }
 
-input, button {
+#cover h1 {
+  font-size: 32px;
+}
+
+#cover button {
+  width: 200px;
+  padding: 15px;
   font-size: 18px;
-  padding: 12px;
-  width: 100%;
-  box-sizing: border-box;
-  margin-top: 10px;
-}
-
-#quizArea {
-  display: none;
-  margin-top: 20px;
-}
-
-#question {
-  font-size: 22px;
-  margin-bottom: 10px;
-}
-
-#feedback {
-  font-size: 18px;
-  margin-top: 10px;
+  border: none;
+  border-radius: 10px;
+  background: #4da3ff;
+  color: white;
 }
