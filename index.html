@@ -15,19 +15,14 @@
   <button id="continueBtn">続きから</button>
 </div>
 
-<!-- CSV選択（始めから用） -->
+<!-- CSV選択 -->
 <input type="file" id="fileInput" accept=".csv" style="display:none;">
 
-<!-- クイズ本体 -->
+<!-- クイズ -->
 <div id="quizArea">
   <div id="question"></div>
 
-  <input
-    id="answer"
-    type="text"
-    placeholder="答えを入力"
-    autocomplete="off"
-  >
+  <input id="answer" type="text" placeholder="答えを入力">
 
   <div class="buttons">
     <button id="submitBtn">答える</button>
@@ -36,9 +31,14 @@
 
   <div id="feedback"></div>
   <div id="score"></div>
+
+  <!-- 終了後 -->
+  <div id="endArea">
+    <button id="saveBtn">間違えた単語を保存</button>
+    <button id="restartBtn">始めから</button>
+  </div>
 </div>
 
 <script src="script.js"></script>
 </body>
 </html>
-
