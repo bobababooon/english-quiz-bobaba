@@ -3,7 +3,7 @@ let remaining = [];
 let current = null;
 let correct = 0;
 
-/* ---------- CSV読み込み ---------- */
+/* ---------- CSV読み込み → 即開始 ---------- */
 document.getElementById("fileInput").addEventListener("change", e => {
   const file = e.target.files[0];
   if (!file) return;
@@ -15,25 +15,16 @@ document.getElementById("fileInput").addEventListener("change", e => {
       .map(line => line.split(","))
       .filter(row => row.length >= 2 && row[0] && row[1])
       .map(row => [row[0].trim(), row[1].trim()]);
+
+    remaining = [...words];
+    correct = 0;
+
+    document.getElementById("quizArea").style.display = "block";
+    nextQuestion();
   };
+
   reader.readAsText(file, "UTF-8");
 });
-
-/* ---------- 始めから ---------- */
-document.getElementById("startBtn").onclick = () => {
-  if (words.length === 0) {
-    // CSV未選択なら何もしない
-    return;
-  }
-
-  remaining = [...words];
-  correct = 0;
-
-  document.getElementById("startScreen").style.display = "none";
-  document.getElementById("quizArea").style.display = "block";
-
-  nextQuestion();
-};
 
 /* ---------- 次の問題 ---------- */
 function nextQuestion() {
