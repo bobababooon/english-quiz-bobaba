@@ -4,6 +4,9 @@ let current = null;
 let correct = 0;
 let answered = false;
 
+// 間違えた単語（英語→日本語、重複なし）
+let wrongMap = new Map();
+
 /* =====================
    保存・復元
 ===================== */
@@ -13,7 +16,8 @@ function saveProgress() {
     words,
     remaining,
     current,
-    correct
+    correct,
+    wrong: Array.from(wrongMap.entries())
   }));
 }
 
@@ -26,6 +30,7 @@ function loadProgress() {
   remaining = obj.remaining;
   current = obj.current;
   correct = obj.correct;
+  wrongMap = new Map(obj.wrong || []);
   return true;
 }
 
@@ -34,11 +39,12 @@ function clearProgress() {
 }
 
 /* =====================
-   表紙操作
+   表紙
 ===================== */
 
 function startNew() {
   clearProgress();
+  wrongMap.clear();
   document.getElementById("startScreen").style.display = "none";
   document.getElementById("quizArea").style.display = "block";
   alert("CSVファイルを選択してください");
@@ -70,7 +76,9 @@ document.getElementById("fileInput").addEventListener("change", function (e) {
     correct = 0;
     current = null;
     answered = false;
+    wrongMap.clear();
 
+    document.getElementById("saveWrongBtn").style.display = "none";
     nextQuestion();
   };
 
@@ -83,10 +91,7 @@ document.getElementById("fileInput").addEventListener("change", function (e) {
 
 function nextQuestion() {
   if (remaining.length === 0) {
-    document.getElementById("question").textContent = "終了！🎉";
-    document.getElementById("feedback").textContent =
-      `正解数: ${correct}`;
-    clearProgress();
+    finishQuiz();
     return;
   }
 
@@ -122,6 +127,8 @@ document.getElementById("submitBtn").onclick = function () {
     remaining = remaining.filter(w => w !== current);
     document.getElementById("feedback").textContent = "正解！🎉";
   } else {
+    // 英語,日本語 で1回だけ保存
+    wrongMap.set(current[0], current[1]);
     document.getElementById("feedback").textContent =
       `不正解 ❌（正解: ${current[0]}）`;
   }
@@ -137,7 +144,45 @@ document.getElementById("submitBtn").onclick = function () {
 document.getElementById("nextBtn").onclick = nextQuestion;
 
 /* =====================
-   Enterキー（スマホ対応）
+   終了
+===================== */
+
+function finishQuiz() {
+  document.getElementById("question").textContent = "終了！🎉";
+  document.getElementById("feedback").textContent =
+    `正解数: ${correct}`;
+  document.getElementById("saveWrongBtn").style.display = "inline-block";
+  clearProgress();
+}
+
+/* =====================
+   CSV保存（英語,日本語のみ）
+===================== */
+
+document.getElementById("saveWrongBtn").onclick = function () {
+  if (wrongMap.size === 0) {
+    alert("間違えた単語はありません！");
+    return;
+  }
+
+  let csv = "英語,日本語\n";
+  for (let [en, jp] of wrongMap) {
+    csv += `${en},${jp}\n`;
+  }
+
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "wrong_words.csv";
+  a.click();
+
+  URL.revokeObjectURL(url);
+};
+
+/* =====================
+   Enterキー
 ===================== */
 
 document.getElementById("answer").addEventListener("keydown", function (e) {
