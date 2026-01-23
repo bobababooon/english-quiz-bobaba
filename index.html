@@ -8,37 +8,24 @@
 </head>
 <body>
 
-<!-- 表紙 -->
-<div id="cover">
-  <h1>英単語クイズ</h1>
-  <button id="startBtn">始めから</button>
-  <button id="continueBtn">続きから</button>
-</div>
-
-<!-- CSV選択 -->
-<input type="file" id="fileInput" accept=".csv" style="display:none;">
-
-<!-- クイズ -->
-<div id="quizArea">
-  <div id="question"></div>
-
-  <input id="answer" type="text" placeholder="答えを入力">
-
-  <div class="buttons">
-    <button id="submitBtn">答える</button>
-    <button id="nextBtn">次へ</button>
+  <!-- クイズ本体 -->
+  <div id="quizArea">
+    <h2 id="question"></h2>
+    <input id="answer" type="text" placeholder="日本語で答えてね">
+    <button onclick="checkAnswer()">答える</button>
+    <p id="feedback"></p>
+    <p id="score"></p>
   </div>
 
-  <div id="feedback"></div>
-  <div id="score"></div>
+  <!-- 終了画面 -->
+  <div id="endArea" style="display:none;">
+    <h2>終了！</h2>
+    <p id="wrongCount"></p>
 
-  <!-- 終了後 -->
-  <div id="endArea">
-    <button id="saveBtn">間違えた単語を保存</button>
-    <button id="restartBtn">始めから</button>
+    <button onclick="saveCSV()">間違えた単語を保存</button>
+    <button onclick="startQuiz()">始めから</button>
   </div>
-</div>
 
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
