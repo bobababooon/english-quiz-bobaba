@@ -170,3 +170,13 @@ function saveState() {
   };
   localStorage.setItem("quizState", JSON.stringify(data));
 }
+
+const reviewBtn = document.getElementById("reviewBtn");
+
+reviewBtn.onclick = () => {
+  remaining = Array.from(wrongSet.entries()).map(([en, jp]) => [en, jp]);
+  correct = 0;
+  wrongSet.clear();
+  endArea.style.display = "none";
+  nextQuestion();
+};
