@@ -110,60 +110,66 @@ function nextQuestion() {
   saveState();
 }
 
+/* ---------- 答え判定 ---------- */
+
 function checkAnswer() {
   if (answered) return;
 
-  // 入力
-  const user = answerEl.value
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, " ");
-
-  // CSVの答え
-  const rawAnswer = current[0]
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, " ");
-
-  // パターン集
-  const patterns = new Set();
-
-  // 元そのまま
-  patterns.add(rawAnswer);
-
-  // カッコ削除
-  patterns.add(
-    rawAnswer
-      .replace(/\(.*?\)/g, "")
+  const normalize = str =>
+    str
+      .toLowerCase()
       .replace(/\s+/g, " ")
-      .trim()
-  );
+      .trim();
 
-  // カッコだけ消して中身残す
-  patterns.add(
-    rawAnswer
-      .replace(/[()]/g, "")
-      .replace(/\s+/g, " ")
-      .trim()
-  );
+  const user = normalize(answerEl.value);
 
-  // (~) → ~
-  patterns.add(
-    rawAnswer
-      .replace(/\(~\)/g, "~")
-      .replace(/[()]/g, "")
-      .replace(/\s+/g, " ")
-      .trim()
-  );
+  const rawAnswer = normalize(current[0]);
 
-  if (patterns.has(user)) {
+  // 全パターン生成
+  function generatePatterns(str) {
+    let results = [str];
+
+    const matches = [...str.matchAll(/\(.*?\)/g)];
+
+    matches.forEach(match => {
+      const full = match[0];
+      const inside = full.slice(1, -1);
+
+      const newResults = [];
+
+      results.forEach(r => {
+        // カッコごと削除
+        newResults.push(r.replace(full, ""));
+
+        // 中身だけ残す
+        newResults.push(r.replace(full, inside));
+      });
+
+      results = newResults;
+    });
+
+    return [
+      ...new Set(
+        results.map(r =>
+          normalize(
+            r.replace(/\(~\)/g, "~")
+          )
+        )
+      )
+    ];
+  }
+
+  const patterns = generatePatterns(rawAnswer);
+
+  if (patterns.includes(user)) {
     correct++;
 
     remaining = remaining.filter(w => w !== current);
 
     feedbackEl.textContent = "正解！🎉";
   } else {
-    feedbackEl.textContent = `不正解 ❌（正解: ${current[0]}）`;
+    feedbackEl.textContent =
+      `不正解 ❌（正解: ${current[0]}）`;
 
     wrongSet.set(current[0], current[1]);
   }
