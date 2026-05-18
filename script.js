@@ -113,27 +113,50 @@ function nextQuestion() {
 function checkAnswer() {
   if (answered) return;
 
-  const user = answerEl.value.trim().toLowerCase();
+  // 入力
+  const user = answerEl.value
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ");
 
-  const rawAnswer = current[0].toLowerCase().trim();
+  // CSVの答え
+  const rawAnswer = current[0]
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ");
 
-  // カッコ削除版
-  const optionalRemoved = rawAnswer
-    .replace(/\(.*?\)/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
+  // パターン集
+  const patterns = new Set();
 
-  // (~) → ~ にした版
-  const tildeVersion = rawAnswer
-    .replace(/\(~\)/g, "~")
-    .replace(/\s+/g, " ")
-    .trim();
+  // 元そのまま
+  patterns.add(rawAnswer);
 
-  if (
-    user === rawAnswer ||
-    user === optionalRemoved ||
-    user === tildeVersion
-  ) {
+  // カッコ削除
+  patterns.add(
+    rawAnswer
+      .replace(/\(.*?\)/g, "")
+      .replace(/\s+/g, " ")
+      .trim()
+  );
+
+  // カッコだけ消して中身残す
+  patterns.add(
+    rawAnswer
+      .replace(/[()]/g, "")
+      .replace(/\s+/g, " ")
+      .trim()
+  );
+
+  // (~) → ~
+  patterns.add(
+    rawAnswer
+      .replace(/\(~\)/g, "~")
+      .replace(/[()]/g, "")
+      .replace(/\s+/g, " ")
+      .trim()
+  );
+
+  if (patterns.has(user)) {
     correct++;
 
     remaining = remaining.filter(w => w !== current);
