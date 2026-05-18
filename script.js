@@ -16,6 +16,8 @@ const nextBtn = document.getElementById("nextBtn");
 const saveBtn = document.getElementById("saveBtn");
 const endArea = document.getElementById("endArea");
 
+const reviewBtn = document.getElementById("reviewBtn");
+
 let words = [];
 let remaining = [];
 let current = null;
@@ -32,12 +34,14 @@ startBtn.onclick = () => {
 
 continueBtn.onclick = () => {
   const saved = localStorage.getItem("quizState");
+
   if (!saved) {
     alert("続きデータがありません");
     return;
   }
 
   const data = JSON.parse(saved);
+
   words = data.words;
   remaining = data.remaining;
   correct = data.correct;
@@ -52,9 +56,11 @@ restartBtn.onclick = () => location.reload();
 
 fileInput.addEventListener("change", e => {
   const file = e.target.files[0];
+
   if (!file) return;
 
   const reader = new FileReader();
+
   reader.onload = () => {
     words = reader.result
       .split("\n")
@@ -68,6 +74,7 @@ fileInput.addEventListener("change", e => {
 
     startQuiz();
   };
+
   reader.readAsText(file, "UTF-8");
 });
 
@@ -77,6 +84,7 @@ function startQuiz() {
   cover.style.display = "none";
   quizArea.style.display = "block";
   endArea.style.display = "none";
+
   nextQuestion();
 }
 
@@ -87,12 +95,16 @@ function nextQuestion() {
   }
 
   current = remaining[Math.floor(Math.random() * remaining.length)];
+
   answered = false;
 
   questionEl.textContent = "意味: " + current[1];
+
   answerEl.value = "";
   feedbackEl.textContent = "";
+
   scoreEl.textContent = `正解: ${correct}`;
+
   answerEl.focus();
 
   saveState();
@@ -102,22 +114,44 @@ function checkAnswer() {
   if (answered) return;
 
   const user = answerEl.value.trim().toLowerCase();
-  const answer = current[0].toLowerCase();
 
-  if (user === answer) {
+  const rawAnswer = current[0].toLowerCase().trim();
+
+  // カッコ削除版
+  const optionalRemoved = rawAnswer
+    .replace(/\(.*?\)/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  // (~) → ~ にした版
+  const tildeVersion = rawAnswer
+    .replace(/\(~\)/g, "~")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (
+    user === rawAnswer ||
+    user === optionalRemoved ||
+    user === tildeVersion
+  ) {
     correct++;
+
     remaining = remaining.filter(w => w !== current);
+
     feedbackEl.textContent = "正解！🎉";
   } else {
     feedbackEl.textContent = `不正解 ❌（正解: ${current[0]}）`;
+
     wrongSet.set(current[0], current[1]);
   }
 
   answered = true;
+
   saveState();
 }
 
 submitBtn.onclick = checkAnswer;
+
 nextBtn.onclick = nextQuestion;
 
 answerEl.addEventListener("keydown", e => {
@@ -130,10 +164,27 @@ answerEl.addEventListener("keydown", e => {
 
 function finishQuiz() {
   questionEl.textContent = "終了！";
+
   feedbackEl.textContent = "お疲れさまでした";
+
   endArea.style.display = "flex";
+
   localStorage.removeItem("quizState");
 }
+
+/* ---------- 間違えた問題だけ復習 ---------- */
+
+reviewBtn.onclick = () => {
+  remaining = Array.from(wrongSet.entries()).map(([en, jp]) => [en, jp]);
+
+  correct = 0;
+
+  wrongSet.clear();
+
+  endArea.style.display = "none";
+
+  nextQuestion();
+};
 
 /* ---------- 保存 ---------- */
 
@@ -144,16 +195,20 @@ saveBtn.onclick = () => {
   }
 
   let csv = "";
+
   wrongSet.forEach((jp, en) => {
     csv += `${en},${jp}\n`;
   });
 
   const blob = new Blob([csv], { type: "text/csv" });
+
   const url = URL.createObjectURL(blob);
 
   const a = document.createElement("a");
+
   a.href = url;
   a.download = "wrong_words.csv";
+
   a.click();
 
   URL.revokeObjectURL(url);
@@ -168,15 +223,6 @@ function saveState() {
     correct,
     wrongSet: Array.from(wrongSet.entries())
   };
+
   localStorage.setItem("quizState", JSON.stringify(data));
 }
-
-const reviewBtn = document.getElementById("reviewBtn");
-
-reviewBtn.onclick = () => {
-  remaining = Array.from(wrongSet.entries()).map(([en, jp]) => [en, jp]);
-  correct = 0;
-  wrongSet.clear();
-  endArea.style.display = "none";
-  nextQuestion();
-};
